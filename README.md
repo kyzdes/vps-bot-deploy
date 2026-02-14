@@ -118,4 +118,7 @@ skills/
 
 ## Документация
 
-Подробная инструкция с примерами: [GUIDE.md](GUIDE.md)
+- [GUIDE.md](GUIDE.md) — пошаговая методичка с примерами
+- [docs/PRD.md](docs/PRD.md) — продуктовые требования и user stories
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — техническая архитектура, data flows, security model
+- [docs/DECISIONS.md](docs/DECISIONS.md) — архитектурные решения (13 ADR)
