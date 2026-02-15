@@ -7,9 +7,10 @@
 │  Developer's Machine (macOS)                                │
 │                                                             │
 │  Claude Code                                                │
-│  ├── /deploy-bot   ─── SKILL.md + 8 reference docs         │
-│  ├── /manage-bot   ─── SKILL.md + 1 reference doc          │
-│  ├── /prepare-bot  ─── SKILL.md + 2 reference docs         │
+│  ├── /tgbot ─── unified SKILL.md + 10 reference docs       │
+│  │   ├── deploy  (server setup + bot deployment)            │
+│  │   ├── manage  (status, logs, redeploy, env, stop/start)  │
+│  │   └── prepare (Dockerfile, .env.example, refactoring)    │
 │  └── memory/deploy-config.md  ─── persistent state          │
 │                                                             │
 │  Tools: SSH, gh CLI, curl, sshpass                          │
@@ -40,32 +41,25 @@
 
 ## Component Model
 
-### 1. Skills (Claude Code Instructions)
+### 1. Skill (Claude Code Instructions)
 
-Skills — это Markdown-файлы, которые Claude Code интерпретирует как инструкции. Никакого исполняемого кода, CI/CD или агентов. Claude читает SKILL.md, следует шагам, вызывает bash-команды через SSH/curl.
+Skill — единый Markdown-файл с тремя flows (deploy, manage, prepare), который Claude Code интерпретирует как инструкции. Никакого исполняемого кода, CI/CD или агентов. Claude читает SKILL.md, роутит по подкоманде, следует шагам, вызывает bash-команды через SSH/curl.
 
 ```
 skills/
-├── deploy-bot/
-│   ├── SKILL.md                    # Главный файл: 5 фаз деплоя
-│   └── references/
-│       ├── preflight-checks.md     # Phase 0: валидация перед стартом
-│       ├── server-bootstrap.md     # Phase 1: SSH + базовые пакеты
-│       ├── systemd-deployment.md   # Phase 3A: systemd-деплой
-│       ├── dokploy-setup.md        # Phase 3B: Dokploy-деплой
-│       ├── dokploy-api.md          # Dokploy API справочник
-│       ├── secrets-detection.md    # Phase 2: обнаружение секретов
-│       ├── dockerfile-templates.md # Шаблоны Dockerfile
-│       └── error-recovery.md       # Восстановление после ошибок
-├── manage-bot/
-│   ├── SKILL.md                    # 7 подкоманд управления
-│   └── references/
-│       └── dokploy-api.md          # API (подмножество для manage)
-└── prepare-bot/
-    ├── SKILL.md                    # 8 шагов подготовки репо
+└── tgbot/
+    ├── SKILL.md                    # Единый скилл: deploy + manage + prepare
     └── references/
-        ├── readiness-checks.md     # 8 проверок готовности
-        └── migration-guides.md     # Паттерны миграции
+        ├── preflight-checks.md     # Deploy: валидация перед стартом
+        ├── server-bootstrap.md     # Deploy: SSH + базовые пакеты
+        ├── systemd-deployment.md   # Deploy: systemd-деплой
+        ├── dokploy-setup.md        # Deploy: Dokploy-деплой
+        ├── dokploy-api.md          # Deploy+Manage: Dokploy API справочник
+        ├── secrets-detection.md    # Deploy: обнаружение секретов
+        ├── dockerfile-templates.md # Deploy+Prepare: шаблоны Dockerfile
+        ├── error-recovery.md       # Deploy: восстановление после ошибок
+        ├── readiness-checks.md     # Prepare: проверки готовности
+        └── migration-guides.md     # Prepare: паттерны миграции
 ```
 
 ### 2. State Management
@@ -320,7 +314,7 @@ Dokploy port conflict   │ "port 3000 already in use"   │ Use existing Dokplo
 DNS in Docker           │ "fetch failed"               │ Fix Docker DNS or systemd
 Missing module          │ "ModuleNotFoundError"        │ Reinstall deps, check venv
 Wrong entry point       │ "No module named 'bot'"      │ Detect correct entry point
-Build fail (no Docker)  │ "Dockerfile not found"       │ Use nixpacks or /prepare-bot
+Build fail (no Docker)  │ "Dockerfile not found"       │ Use nixpacks or /tgbot prepare
 Bot polling conflict    │ "terminated by getUpdates"   │ Stop other bot instances
 Interrupted deploy      │ Check current state          │ Resume from last phase
 ```
